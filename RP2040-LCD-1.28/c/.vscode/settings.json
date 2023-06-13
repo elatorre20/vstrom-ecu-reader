@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "lcd_1in28.h": "c",
+        "adc.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c"
+    }
+}
