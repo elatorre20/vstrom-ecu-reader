@@ -1,10 +1,10 @@
 #include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_GrayOLED.h>
-#include <Adafruit_SPITFT.h>
-#include <Adafruit_SPITFT_Macros.h>
-#include <gfxfont.h>
-#include <Adafruit_GC9A01A.h>
+#include <stdlib.h>
+#include "DEV_Config.h"
+#include "GUI_Paint.h"
+#include "ImageData.h"
+#include "LCD_1in28.h"
+#include "QMI8658.h"
 
 //LCD pins
 #define LCD_BACKLIGHT 25
@@ -21,28 +21,60 @@
 #define IMU_INT2 24
 
 //global variables
-Adafruit_GC9A01A lcd(LCD_CS, LCD_DC);
 String v_current = "0.0.1"; //version
+uint32_t sched = 0;
 
 void setup() {
-  //serial console for debug
+  //serial setup
   Serial.begin(9600);
   Serial.println("Suzuki K-line interface v%s" + v_current); 
+  
+  //spi init
+  DEV_Module_Init();
+  
+  //setup lcd
+  LCD_1IN28_Init(HORIZONTAL);
+  
+  //turn on backlight
+  DEV_SET_PWM(50);
 
-  //LCD setup
-  lcd.begin();
-  pinMode(LCD_BACKLIGHT, OUTPUT);
-  digitalWrite(LCD_BACKLIGHT, HIGH);
+  //clear display
+  LCD_1IN28_Clear(WHITE);
+
+  //allocate and set image buffer
+  UDOUBLE Imagesize = LCD_1IN28_HEIGHT * LCD_1IN28_WIDTH * 2;
+  UWORD *canvas;
+  if ((canvas = (UWORD *)malloc(Imagesize)) == NULL)
+  {
+      Serial.println("Failed to allocate image memory...");
+      exit(0);
+  }
+  Paint_NewImage((UBYTE *)canvas, LCD_1IN28.WIDTH, LCD_1IN28.HEIGHT, 0, WHITE);
+  Paint_SetScale(65);
+
+  //white out screen
+  Paint_SetRotate(ROTATE_0);
+  Paint_Clear(WHITE);
+  LCD_1IN28_Display(canvas);
+
+  while(1){ //main()
+    sched++;
+    if(sched == 10000000){
+      sched = 0;//sched rolls over approximately once a second
+    }
+    if(sched == 0){
+      Paint_Clear(BLUE);
+      Paint_DrawString_EN(17,110, "Hello world!", &Font24, BLACK, BLUE);
+      LCD_1IN28_Display(canvas);
+    }
+    if(sched == 5000000){
+      Paint_Clear(RED);
+      Paint_DrawString_EN(17,110, "Hello world!", &Font24, BLACK, RED);
+      LCD_1IN28_Display(canvas);
+    }
+  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  lcd.fillScreen(0xF800);
-  yield();
-  Serial.println("RED");
-  delay(1000);
-  lcd.fillScreen(0x001F);
-  yield;
-  Serial.println("BLUE");
-  delay(1000);
+  //unused
 }
