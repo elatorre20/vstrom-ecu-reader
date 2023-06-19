@@ -73,6 +73,7 @@ void setup() {
       // Paint_DrawString_EN(17,110, "Hello world!", &Font24, BLACK, RED);
       Paint_DrawImage(BlackSquare88, 50, 50, 8, 8);
       Paint_DrawImage(WhiteSquare88, 100, 100, 8, 8);
+      Paint_DrawImage(heart1616, 150, 150, 16, 16);
       LCD_1IN28_Display(canvas);
     }
   }
