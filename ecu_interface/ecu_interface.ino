@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "DEV_Config.h"
 #include "GUI_Paint.h"
-#include "ImageData.h"
 #include "sprites.h"
 #include "LCD_1in28.h"
 #include "QMI8658.h"
@@ -63,17 +62,9 @@ void setup() {
     if(sched == 10000000){
       sched = 0;//sched rolls over approximately once a second
     }
-    if(sched == -1){
-      Paint_Clear(BLUE);
-      Paint_DrawString_EN(17,110, "Hello world!", &Font24, BLACK, BLUE);
-      LCD_1IN28_Display(canvas);
-    }
-    if(sched == 5000000){
-      Paint_Clear(RED);
-      // Paint_DrawString_EN(17,110, "Hello world!", &Font24, BLACK, RED);
-      Paint_DrawImage(BlackSquare88, 50, 50, 8, 8);
-      Paint_DrawImage(WhiteSquare88, 100, 100, 8, 8);
-      Paint_DrawImage(heart1616, 150, 150, 16, 16);
+    if(sched == 0){
+      Paint_Clear(BLACK);
+       Paint_DrawImage(neutral96128, 50, 50, 96, 128);
       LCD_1IN28_Display(canvas);
     }
   }

@@ -11,5 +11,6 @@ extern const unsigned char heart88[];
 extern const unsigned char heart1616[];
 
 //gears
+extern const unsigned char neutral96128[];
 
 #endif
