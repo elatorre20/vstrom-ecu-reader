@@ -21,8 +21,10 @@
 #define IMU_INT2 24
 
 //global variables
-String v_current = "0.0.1"; //version
+String v_current = "0.0.2"; //version
 uint32_t sched = 0;
+uint8_t gear = 0; //zero for neutral, 1-6 for gears
+uint8_t temp = 0;
 
 void setup() {
   //serial setup
@@ -64,8 +66,50 @@ void setup() {
     }
     if(sched == 0){
       Paint_Clear(BLACK);
-       Paint_DrawImage(neutral96128, 50, 50, 96, 128);
+
+      //gear
+      switch (gear)
+      {
+      case 0:
+        Paint_DrawImage(neutral, 90, 75, 64, 96);
+        break;
+
+      case 1:
+        Paint_DrawImage(first, 90, 75, 64, 96);
+        break;
+
+      case 2:
+        Paint_DrawImage(second, 90, 75, 64, 96);
+        break;
+
+      case 3:
+        Paint_DrawImage(third, 90, 75, 64, 96);
+        break;
+
+      case 4:
+        Paint_DrawImage(fourth, 90, 75, 64, 96);
+        break;
+
+      case 5:
+        Paint_DrawImage(fifth, 90, 75, 64, 96);
+        break;
+      
+      case 6:
+        Paint_DrawImage(sixth, 90, 75, 64, 96);
+        break;
+
+      default:
+        break;
+      }
+
+      //coolant temperature
+      // Paint_DrawImage(temp)
+      
       LCD_1IN28_Display(canvas);
+      gear++;
+      if(gear == 7){
+        gear = 0;
+      }
     }
   }
 }
