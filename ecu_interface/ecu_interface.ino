@@ -71,31 +71,31 @@ void setup() {
       switch (gear)
       {
       case 0:
-        Paint_DrawImage(neutral, 90, 75, 64, 96);
+        Paint_DrawImage(neutral, 88, 72, 64, 96);
         break;
 
       case 1:
-        Paint_DrawImage(first, 90, 75, 64, 96);
+        Paint_DrawImage(first, 88, 72, 64, 96);
         break;
 
       case 2:
-        Paint_DrawImage(second, 90, 75, 64, 96);
+        Paint_DrawImage(second, 88, 72, 64, 96);
         break;
 
       case 3:
-        Paint_DrawImage(third, 90, 75, 64, 96);
+        Paint_DrawImage(third, 88, 72, 64, 96);
         break;
 
       case 4:
-        Paint_DrawImage(fourth, 90, 75, 64, 96);
+        Paint_DrawImage(fourth, 88, 72, 64, 96);
         break;
 
       case 5:
-        Paint_DrawImage(fifth, 90, 75, 64, 96);
+        Paint_DrawImage(fifth, 88, 72, 64, 96);
         break;
       
       case 6:
-        Paint_DrawImage(sixth, 90, 75, 64, 96);
+        Paint_DrawImage(sixth, 88, 72, 64, 96);
         break;
 
       default:
@@ -103,9 +103,28 @@ void setup() {
       }
 
       //coolant temperature
-      // Paint_DrawImage(temp)
+      Paint_DrawImage(temp_1_1217, 6, 103, 12, 17);
+      Paint_DrawImage(temp_2_1217, 8, 83, 12, 17);
+      Paint_DrawImage(temp_3_1617, 14, 65, 16,17);
+      Paint_DrawImage(temp_4_1616, 22, 48, 16, 16);
+      Paint_DrawImage(temp_5_1616, 36, 33, 16, 16);
+      Paint_DrawImage(temp_6_2014, 49, 21, 20, 14);
+      Paint_DrawImage(temp_7_2013, 67, 12, 20, 13);
+      Paint_DrawImage(temp_8_2011, 87, 7, 20, 11);
+      Paint_DrawImage(temp_9_248, 108, 6, 24, 8);
+      Paint_DrawImage(temp_10_2011, 133, 9, 20, 11);
+      Paint_DrawImage(temp_11_2013, 153, 14, 20, 13);
+      Paint_DrawImage(temp_12_2014, 170, 23, 20, 14);
+      Paint_DrawImage(temp_13_1616, 186, 34, 16, 16);
+      Paint_DrawImage(temp_14_1616, 199, 48, 16, 16);
+      Paint_DrawImage(temp_15_1617, 210, 65, 16, 17);
+      Paint_DrawImage(temp_16_1217, 218, 83, 12, 17);
+      Paint_DrawImage(temp_17_1217, 223, 103, 12, 17);
       
+      //display constructed canvas
       LCD_1IN28_Display(canvas);
+
+      //update gear and temp for debug
       gear++;
       if(gear == 7){
         gear = 0;

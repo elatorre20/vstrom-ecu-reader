@@ -1,4 +1,6 @@
 #a tool to convert RGB888 bitmaps to the GRB555 char[]s expected by the GC9A01
+#N.B. due to bmp format alignment conventions, this only works if the image width is divisible by 4
+#N.B. due to graphics buffer endianness the images are flipped vertically when displayed
 
 def packPixel(r,g,b):
     #takes in three bytes and packs them into an RGB555 pixel
@@ -25,3 +27,9 @@ def convertBitmap(fname, size):
     out.write(imageData)
     return(imageData)
     
+    
+def convertColors():
+    sizes = [0, (12*17*2), (12*17*2), (16*17*2), (16*16*2), (16*16*2), (20*14*2), (20*13*2), (20*11*2), (24*8*2), (20*11*2), (20*13*2), (20*14*2), (16*16*2), (16*16*2), (16*17*2), (12*17*2), (12*17*2)]
+    for i in range(1,18):
+        convertBitmap(("temp_"+str(i)), sizes[i])
+        

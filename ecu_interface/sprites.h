@@ -19,4 +19,23 @@ extern const unsigned char fourth[];
 extern const unsigned char fifth[];
 extern const unsigned char sixth[];
 
+//temps
+extern const unsigned char temp_1_1217[];
+extern const unsigned char temp_2_1217[];
+extern const unsigned char temp_3_1617[];
+extern const unsigned char temp_4_1616[];
+extern const unsigned char temp_5_1616[];
+extern const unsigned char temp_6_2014[];
+extern const unsigned char temp_7_2013[];
+extern const unsigned char temp_8_2011[];
+extern const unsigned char temp_9_248[];
+extern const unsigned char temp_10_2011[];
+extern const unsigned char temp_11_2013[];
+extern const unsigned char temp_12_2014[];
+extern const unsigned char temp_13_1616[];
+extern const unsigned char temp_14_1616[];
+extern const unsigned char temp_15_1617[];
+extern const unsigned char temp_16_1217[];
+extern const unsigned char temp_17_1217[];
+
 #endif
