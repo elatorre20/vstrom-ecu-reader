@@ -112,14 +112,14 @@ void setup() {
       Paint_DrawImage(temp_7_2013, 67, 12, 20, 13);
       Paint_DrawImage(temp_8_2011, 87, 7, 20, 11);
       Paint_DrawImage(temp_9_248, 108, 6, 24, 8);
-      Paint_DrawImage(temp_10_2011, 133, 9, 20, 11);
-      Paint_DrawImage(temp_11_2013, 153, 14, 20, 13);
-      Paint_DrawImage(temp_12_2014, 170, 23, 20, 14);
-      Paint_DrawImage(temp_13_1616, 186, 34, 16, 16);
-      Paint_DrawImage(temp_14_1616, 199, 48, 16, 16);
-      Paint_DrawImage(temp_15_1617, 210, 65, 16, 17);
-      Paint_DrawImage(temp_16_1217, 218, 83, 12, 17);
-      Paint_DrawImage(temp_17_1217, 223, 103, 12, 17);
+      Paint_DrawImage(temp_10_2011, 133, 7, 20, 11);
+      Paint_DrawImage(temp_11_2013, 153, 12, 20, 13);
+      Paint_DrawImage(temp_12_2014, 170, 21, 20, 14);
+      Paint_DrawImage(temp_13_1616, 188, 33, 16, 16);
+      Paint_DrawImage(temp_14_1616, 202, 48, 16, 16);
+      Paint_DrawImage(temp_15_1617, 212, 65, 16, 17);
+      Paint_DrawImage(temp_16_1217, 220, 83, 12, 17);
+      Paint_DrawImage(temp_17_1217, 222, 103, 12, 17);
       
       //display constructed canvas
       LCD_1IN28_Display(canvas);
