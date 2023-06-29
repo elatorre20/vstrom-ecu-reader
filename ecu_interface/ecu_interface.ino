@@ -24,7 +24,7 @@
 String v_current = "0.0.2"; //version
 uint32_t sched = 0;
 uint8_t gear = 0; //zero for neutral, 1-6 for gears
-uint8_t temp = 0;
+uint8_t temp = 50; //coolant temperature in C
 
 void setup() {
   //serial setup
@@ -102,24 +102,56 @@ void setup() {
         break;
       }
 
-      //coolant temperature
-      Paint_DrawImage(temp_1_1217, 6, 103, 12, 17);
-      Paint_DrawImage(temp_2_1217, 8, 83, 12, 17);
-      Paint_DrawImage(temp_3_1617, 14, 65, 16,17);
-      Paint_DrawImage(temp_4_1616, 22, 48, 16, 16);
-      Paint_DrawImage(temp_5_1616, 36, 33, 16, 16);
-      Paint_DrawImage(temp_6_2014, 49, 21, 20, 14);
-      Paint_DrawImage(temp_7_2013, 67, 12, 20, 13);
-      Paint_DrawImage(temp_8_2011, 87, 7, 20, 11);
-      Paint_DrawImage(temp_9_248, 108, 6, 24, 8);
-      Paint_DrawImage(temp_10_2011, 133, 7, 20, 11);
-      Paint_DrawImage(temp_11_2013, 153, 12, 20, 13);
-      Paint_DrawImage(temp_12_2014, 170, 21, 20, 14);
-      Paint_DrawImage(temp_13_1616, 188, 33, 16, 16);
-      Paint_DrawImage(temp_14_1616, 202, 48, 16, 16);
-      Paint_DrawImage(temp_15_1617, 212, 65, 16, 17);
-      Paint_DrawImage(temp_16_1217, 220, 83, 12, 17);
-      Paint_DrawImage(temp_17_1217, 222, 103, 12, 17);
+      //coolant temperature, drawn top to bottom to correct for overlap
+      Paint_DrawImage(temp_1_1217, 6, 103, 12, 17); //always draw the first segment
+      if(temp > 56){
+        Paint_DrawImage(temp_2_1217, 8, 83, 12, 17);
+      }
+      if(temp > 62){
+        Paint_DrawImage(temp_3_1617, 14, 65, 16,17);
+      }
+      if(temp > 68){
+        Paint_DrawImage(temp_4_1616, 22, 48, 16, 16);
+      }
+      if(temp > 74){
+        Paint_DrawImage(temp_5_1616, 36, 33, 16, 16);
+      }
+      if(temp > 80){
+        Paint_DrawImage(temp_6_2014, 49, 21, 20, 14);
+      }
+      if(temp > 86){
+        Paint_DrawImage(temp_7_2013, 67, 12, 20, 13);
+      }
+      if(temp > 92){
+        Paint_DrawImage(temp_8_2011, 87, 7, 20, 11);
+      }
+      if(temp > 98){
+        Paint_DrawImage(temp_9_248, 108, 6, 24, 8);
+      }
+      if(temp > 104){
+        Paint_DrawImage(temp_10_2011, 133, 7, 20, 11);
+      }
+      if(temp > 110){
+        Paint_DrawImage(temp_11_2013, 153, 12, 20, 13);
+      }
+      if(temp > 116){
+        Paint_DrawImage(temp_12_2014, 170, 21, 20, 14);
+      }
+      if(temp > 122){
+        Paint_DrawImage(temp_13_1616, 188, 33, 16, 16);
+      }
+      if(temp > 128){
+        Paint_DrawImage(temp_14_1616, 202, 48, 16, 16);
+      }
+      if(temp > 134){
+        Paint_DrawImage(temp_15_1617, 212, 65, 16, 17);
+      }
+      if(temp > 140){
+        Paint_DrawImage(temp_16_1217, 220, 83, 12, 17);
+      }
+      if(temp > 146){
+        Paint_DrawImage(temp_17_1217, 222, 103, 12, 17);
+      }
       
       //display constructed canvas
       LCD_1IN28_Display(canvas);
@@ -128,6 +160,10 @@ void setup() {
       gear++;
       if(gear == 7){
         gear = 0;
+      }
+      temp = temp + 3;
+      if(temp > 150){
+        temp = temp - 100;
       }
     }
   }
