@@ -20,13 +20,33 @@
 #define IMU_INT1 23
 #define IMU_INT2 24
 
+//timers for interrupts
+volatile uint16_t timer_ms = 0; //used for scheduling
+#define TIMER_INTERRUPT_DEBUG         1
+#define _TIMERINTERRUPT_LOGLEVEL_     4
+#include "RPi_Pico_TimerInterrupt.h"
+#define TIMER0_INTERVAL_MS    1
+RPI_PICO_Timer ITimer0(1);
+bool TimerHandler0(struct repeating_timer *t) //timer interrupt handler
+{
+  (void) t;
+  timer_ms++;
+  if(timer_ms == 100){
+    timer_ms = 0;
+  }
+  return true;
+}
+
+
 //global variables
 String v_current = "0.0.2"; //version
-uint32_t sched = 0;
 uint8_t gear = 0; //zero for neutral, 1-6 for gears
 uint8_t temp = 50; //coolant temperature in C
 
 void setup() {
+  //timer ISR setup
+  ITimer0.attachInterruptInterval(TIMER0_INTERVAL_MS * 1000, TimerHandler0);
+
   //serial setup
   Serial.begin(9600);
   Serial.println("Suzuki K-line interface v%s" + v_current); 
@@ -46,11 +66,8 @@ void setup() {
   //allocate and set image buffer
   UDOUBLE Imagesize = LCD_1IN28_HEIGHT * LCD_1IN28_WIDTH * 2;
   UWORD *canvas;
-  if ((canvas = (UWORD *)malloc(Imagesize)) == NULL)
-  {
-      Serial.println("Failed to allocate image memory...");
-      exit(0);
-  }
+  canvas = (UWORD *)malloc(Imagesize);
+  
   Paint_NewImage((UBYTE *)canvas, LCD_1IN28.WIDTH, LCD_1IN28.HEIGHT, 0, WHITE);
   Paint_SetScale(65);
 
@@ -60,11 +77,13 @@ void setup() {
   LCD_1IN28_Display(canvas);
 
   while(1){ //main()
-    sched++;
-    if(sched == 10000000){
-      sched = 0;//sched rolls over approximately once a second
+    if((timer_ms%10)==0){//update serial every 10ms
+      //do ecu read
+      Serial.println("communicating with ECU");
     }
-    if(sched == 0){
+
+    if(timer_ms == 0){//update display every 100ms
+      Serial.println("updating display");
       Paint_Clear(BLACK);
 
       //gear
