@@ -19,9 +19,16 @@
 #define IMU_SCL 7
 #define IMU_INT1 23
 #define IMU_INT2 24
+#define X_ADJ 200 //adjustment factor because the dial is not sitting flat
+#define Y_ADJ 120
+#define DOT_SIZE 10 //the size of the accelerometer pointer
+float acc[3], gyro[3];
+uint16_t acc_coords[2];
+unsigned int tim_count = 0;
 
 //timer for interrupts
 volatile uint16_t timer_ms = 0; //used for scheduling
+volatile uint8_t task_sched = 0; //used to ensure tasks only execute once if they take less than 1ms
 #define TIMER_INTERRUPT_DEBUG         1
 #define _TIMERINTERRUPT_LOGLEVEL_     4
 #include "RPi_Pico_TimerInterrupt.h"
@@ -29,8 +36,9 @@ volatile uint16_t timer_ms = 0; //used for scheduling
 RPI_PICO_Timer ITimer0(1);
 bool TimerHandler0(struct repeating_timer *t){ //timer interrupt handler
   (void) t;
+  task_sched = 1;
   timer_ms++;
-  if(timer_ms == 1000){
+  if(timer_ms == 500){
     timer_ms = 0;
   }
   return true;
@@ -40,7 +48,9 @@ bool TimerHandler0(struct repeating_timer *t){ //timer interrupt handler
 //global variables
 #define DISP_MODE_GEAR 0
 #define DISP_MODE_ACC 1
-uint8_t disp_mode = 0;
+uint8_t debug_log = 1;
+uint8_t serial_log = 1;
+uint8_t disp_mode = 1;
 String v_current = "0.1.1"; //version
 uint8_t gear = 0; //zero for neutral, 1-6 for gears
 uint8_t temp = 50; //coolant temperature in C
@@ -55,12 +65,15 @@ void setup() {
   
   //spi init
   DEV_Module_Init();
+
+  //gyro init
+  QMI8658_init();
   
   //setup lcd
   LCD_1IN28_Init(HORIZONTAL);
   
   //turn on backlight
-  DEV_SET_PWM(50);
+  DEV_SET_PWM(100);
 
   //clear display
   LCD_1IN28_Clear(WHITE);
@@ -79,13 +92,15 @@ void setup() {
   LCD_1IN28_Display(canvas);
 
   while(1){ //main()
-    if(timer_ms == 250){//update serial once per display period half-phase off
+    if((timer_ms == 0)&task_sched){//update serial once per second
+      task_sched = 0;
       //do ecu read
-      Serial.println("communicating with ECU");
+      if(debug_log){Serial.println("communicating with ECU");}
     }
 
-    if(timer_ms == 0){//display update requires 300ms
-      Serial.println("updating display");
+    if((timer_ms == 200)&task_sched){//display update requires 300ms
+      task_sched = 0;
+      if(debug_log){Serial.println("updating display");}
       Paint_Clear(BLACK);
 
       if(disp_mode == DISP_MODE_GEAR){
@@ -174,25 +189,42 @@ void setup() {
         if(temp > 146){
           Paint_DrawImage(temp_17_1217, 222, 103, 12, 17);
         }
+
+        //update gear and temp for debug
+        gear++;
+        if(gear == 7){
+          gear = 0;
+        }
+        temp = temp + 3;
+        if(temp > 150){
+          temp = temp - 100;
+        }
       }
       
+      if(disp_mode == DISP_MODE_ACC){
+        //read gyroscope
+        QMI8658_read_xyz(acc, gyro, &tim_count);
+        Serial.println("x: " + String(acc[0]) + "y: " + String(acc[1]));
+        accel_calc(acc, acc_coords);
+
+        //add gyro backround
+        Paint_DrawImage(accelerometer, 0, 0, 240, 240);
+
+        Paint_DrawCircle(acc_coords[1], acc_coords[0], DOT_SIZE, RED, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+
+      }
       //display constructed canvas
       LCD_1IN28_Display(canvas);
-
-      //update gear and temp for debug
-      gear++;
-      if(gear == 7){
-        gear = 0;
-      }
-      temp = temp + 3;
-      if(temp > 150){
-        temp = temp - 100;
-      }
-      Serial.println("Display task finished");
+      if(debug_log){Serial.println("Display task finished");}
     }
   }
 }
 
 void loop() {
   //unused
+}
+
+void accel_calc(float acc[], uint16_t coords[]){
+  coords[0] = (uint16_t)(acc[0]*0.12+X_ADJ);
+  coords[1] = (uint16_t)(acc[1]*0.12+Y_ADJ);
 }
