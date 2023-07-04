@@ -38,4 +38,7 @@ extern const unsigned char temp_15_1617[];
 extern const unsigned char temp_16_1217[];
 extern const unsigned char temp_17_1217[];
 
+//accel background
+extern const unsigned char accelerometer[];
+
 #endif

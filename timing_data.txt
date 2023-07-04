@@ -1,0 +1,13 @@
+display task times: (gear mode, all triggered at 0ms)
+016->253 237ms
+001->235 234ms
+030->265 236ms
+019->252 233ms
+999->238 239ms
+995->278 283ms
+031->268 237ms
+020->257 237ms
+015->253 238ms
+009->245 236ms
+
+safe WCET ~= 300ms
