@@ -19,8 +19,9 @@
 #define IMU_SCL 7
 #define IMU_INT1 23
 #define IMU_INT2 24
-#define X_ADJ 200 //adjustment factor because the dial is not sitting flat
-#define Y_ADJ 120
+#define X_ADJ 700.0f //adjustment factor because the dial is not sitting flat
+#define Y_ADJ 0.0f
+#define Z_ADJ 0.0f
 #define DOT_SIZE 10 //the size of the accelerometer pointer
 float acc[3], gyro[3];
 uint16_t acc_coords[2];
@@ -204,7 +205,9 @@ void setup() {
       if(disp_mode == DISP_MODE_ACC){
         //read gyroscope
         QMI8658_read_xyz(acc, gyro, &tim_count);
-        Serial.println("x: " + String(acc[0]) + "y: " + String(acc[1]));
+        Serial.print("x: ");
+        Serial.println(acc[0]);
+        accel_correct(acc);
         accel_calc(acc, acc_coords);
 
         //add gyro backround
@@ -225,6 +228,12 @@ void loop() {
 }
 
 void accel_calc(float acc[], uint16_t coords[]){
-  coords[0] = (uint16_t)(acc[0]*0.12+X_ADJ);
-  coords[1] = (uint16_t)(acc[1]*0.12+Y_ADJ);
+  coords[0] = (uint16_t)(acc[0]*0.12+120);
+  coords[1] = (uint16_t)(acc[1]*0.12+120);
+}
+
+void accel_correct(float acc[]){//applies correction factors for the base acceleration caused by the dial not sitting flat
+  acc[0] = acc[0]+X_ADJ;
+  acc[1] = acc[1]+Y_ADJ;
+  acc[2] = acc[2]+Z_ADJ;
 }
