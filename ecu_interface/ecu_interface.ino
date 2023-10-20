@@ -49,10 +49,13 @@ bool TimerHandler0(struct repeating_timer *t){ //timer interrupt handler
 //global variables
 #define DISP_MODE_GEAR 0
 #define DISP_MODE_ACC 1
+#define KLINE 1 //serial TX pin
+#define LLINE 5 //L line GPIO
 uint8_t debug_log = 1;
 uint8_t serial_log = 1;
-uint8_t disp_mode = 1;
-String v_current = "0.1.1"; //version
+uint8_t disp_mode = DISP_MODE_GEAR;
+uint16_t kline_rate = 10400; //baudrate for diagnostic interface
+String v_current = "0.2.0"; //version
 uint8_t gear = 0; //zero for neutral, 1-6 for gears
 uint8_t temp = 50; //coolant temperature in C
 
@@ -91,6 +94,15 @@ void setup() {
   Paint_SetRotate(ROTATE_0);
   Paint_Clear(WHITE);
   LCD_1IN28_Display(canvas);
+
+  //setup ECU communication
+  pinMode(KLINE, OUTPUT);
+  pinMode(LLINE, OUTPUT);
+  digitalWrite(KLINE, LOW);
+  digitalWrite(LLINE, LOW);
+  Serial1.begin(kline_rate);//init ECU uart
+
+  
 
   while(1){ //main()
     if((timer_ms == 0)&task_sched){//update serial once per second
