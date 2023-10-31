@@ -43,7 +43,8 @@
                 "c:\\users\\emili\\appdata\\local\\arduino15\\packages\\rp2040\\tools\\pqt-gcc\\1.5.0-b-c7bab52\\lib\\gcc\\arm-none-eabi\\10.3.0\\include-fixed",
                 "c:\\users\\emili\\appdata\\local\\arduino15\\packages\\rp2040\\tools\\pqt-gcc\\1.5.0-b-c7bab52\\arm-none-eabi\\include",
                 "c:\\Users\\emili\\Documents\\Arduino\\**",
-                "e:\\Documents\\Arduino\\**"
+                "e:\\Documents\\Arduino\\**",
+                "c:\\Users\\EmilioGL\\AppData\\Local\\Arduino15\\**"
             ],
             "forcedInclude": [
                 "C:\\Users\\emili\\AppData\\Local\\Arduino15\\packages\\rp2040\\hardware\\rp2040\\3.2.2\\cores\\rp2040\\Arduino.h"

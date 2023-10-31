@@ -1,18 +1,20 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306_EMULATOR.h>
+#include <Adafruit_SSD1306.h>
 #include "images.h"
 
 //timer for interrupts
-volatile uint16_t timer_ms = 0; //used for scheduling
-volatile uint8_t task_sched = 0; //used to ensure tasks only execute once if they take less than 1ms
-#define TIMER_INTERRUPT_DEBUG         2
-#define _TIMERINTERRUPT_LOGLEVEL_     0
-#define USE_TIMER_1     true
-#define TIMER_INTERVAL_MS 1L //interval for timer interrupt in ms
-#define SCHED_ROLLOVER 1000 //number of periods for timer_ms to rollover
-#include <TimerInterrupt.h>
-void TimerHandler(){ //timer interrupt handler
+#define SCHED_ROLLOVER 1000 //timer rollover in milliseconds
+volatile uint8_t task_sched = 0;
+volatile uint16_t timer_ms = 0; //actually 1 timer period, not 1ms
+void timerSetup(uint16_t period){
+  TCCR1A = 0; //no OC
+  TCCR1B = 0; //clear control register
+  TCCR1B = (1<<CS12)|(0<<CS11)|(1<<CS10)|(0<<WGM13)|(1<<WGM12); //1024 prescaler, counting up to OCR1A
+  OCR1A = 160; //16,000,000/1024/ICR1 = timer frequency, roughly 16/ms  
+  TIMSK1 |= (1<<OCIE1A);
+}
+ISR(TIMER1_COMPA_vect){ //timer interrupt handler
   task_sched = 1;
   timer_ms++;
   if(timer_ms == SCHED_ROLLOVER){
@@ -32,12 +34,12 @@ void TimerHandler(){ //timer interrupt handler
 #define BAUDRATE 10400
 #define KLINE_PIN 1 //serial1 TX
 #define LLINE_PIN 2 //any GPIO
-char *init_sequence = {}
+char init_sequence[] = {0xC1, 0x33, 0xF1, 0x81, 0x66};
 
 
 
 
-Adafruit_SSD1306_EMULATOR display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
   //serial setup
@@ -45,29 +47,29 @@ void setup() {
   Serial.println("Motorcycle diagnostic interface");
 
   //timer setup
-  ITimer1.init();
-  ITimer.attachInterruptInterval(TIMER_INTERVAL_MS, TimerHandler);
+  timerSetup(1);
+
 
   //display setup
   display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
-  display.setTextSize(2);            
+  display.setTextSize(3);            
   display.setTextColor(SSD1306_WHITE);
   display.clearDisplay();
 
   //splash
-  display.setCursor(0,0); //find center later
+  display.setCursor(15,20); //find center later
   display.print(F("SUZUKI"));
   display.display();
-  delay(1000);
-  display.clearDisplay();
-  display.display();
+  delay(3000);
+  // display.clearDisplay();
+  // display.display();
 
   //diag UART setup
   pinMode(KLINE_PIN, OUTPUT);//setup to send init on k and l lines
   pinMode(LLINE_PIN, OUTPUT);
   fastInit();
   Serial1.begin(BAUDRATE);
-  Serial1.write();
+  Serial1.write(init_sequence, 5);
 
   
 
@@ -75,7 +77,14 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  if(task_sched){
+    display.clearDisplay();
+    display.setCursor(15,20); //find center later
+    display.print(timer_ms);
+    Serial.println(timer_ms);
+    display.display();
+    task_sched = 0;
+  }
 }
 
 
