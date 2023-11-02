@@ -4,7 +4,7 @@
 #include "images.h"
 
 //timer for interrupts
-#define SCHED_ROLLOVER 300 //timer rollover in milliseconds
+#define SCHED_ROLLOVER 100 //timer rollover in milliseconds
 volatile uint8_t task_sched = 0;
 volatile uint16_t timer_ms = 0; //actually 1 timer period, not 1ms
 void timerSetup(uint16_t period){//period roughly in MS
@@ -54,16 +54,14 @@ void setup() {
 
 
   //display setup
-  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
-  display.setTextSize(3);            
+  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);           
   display.setTextColor(SSD1306_WHITE);
+  display.setTextSize(8);
   display.clearDisplay();
-
-  //splash
-  display.setCursor(15,20); //find center later
-  display.print(F("SUZUKI"));
+  display.drawBitmap(32,0,logo_splash,64,64,SSD1306_WHITE);
   display.display();
   delay(3000);
+  
 
   //diag UART setup
   pinMode(KLINE_PIN, OUTPUT);//setup to send init on k and l lines
@@ -76,28 +74,54 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(task_sched){
-    if(timer_ms > 200){
-      gear = 2;
+  if(task_sched){//only execute once per timer period
+    if(timer_ms == 50){
+      gear++;
+      if(gear == 8){
+        gear = 0;
+      }
     }
-    else if(timer_ms > 100){
-      gear = 1;
-    }
-    else{
-      gear = 0;
-    }
+    
     switch(gear){//display current gear
       case 0:
         display.clearDisplay();
-        display.drawBitmap(0,0,neutral,32,64,WHITE);
+        display.setCursor(4,4);
+        display.print(F("N"));
         break;
       case 1:
         display.clearDisplay();
-        display.drawBitmap(0,0,first,32,64,WHITE);
+        display.setCursor(4,4);
+        display.print(F("1"));
+        break;
+      case 2:
+        display.clearDisplay();
+        display.setCursor(4,4);
+        display.print(F("2"));
+        break;
+      case 3:
+        display.clearDisplay();
+        display.setCursor(4,4);
+        display.print(F("3"));
+        break;
+      case 4:
+        display.clearDisplay();
+        display.setCursor(4,4);
+        display.print(F("4"));
+        break;
+      case 5:
+        display.clearDisplay();
+        display.setCursor(4,4);
+        display.print(F("5"));
+        break;
+      case 6:
+        display.clearDisplay();
+        display.setCursor(4,4);
+        display.print(F("6"));
         break;
       default:
         display.clearDisplay();
-        display.drawBitmap(0,0,uncertain, 32,64,WHITE);
+        display.setCursor(4,4);
+        display.print(F("-"));
         break;
     }
     display.display();
