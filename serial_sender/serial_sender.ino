@@ -33,12 +33,12 @@ ISR(TIMER1_COMPA_vect){ //timer interrupt handler
 #define BAUDRATE 10400
 #define KLINE_PIN 1 //serial1 TX
 #define LLINE_PIN 4 //any GPIO
-const static char init_sequence[] PROGMEM = {0xC1, 0x33, 0xF1, 0x81, 0x66};
+char write_buf[32];
+String read_buf;
+const static char PROGMEM init_sequence[] = {0xC1, 0x33, 0xF1, 0x81, 0x66}; //size is stored in the first byte of the message, figure out later
 
 //misc
-uint8_t line = 0;
-uint8_t y = 0;
-String buf; //string for recieve/send buffer
+uint8_t line = 0;//for scrolling the display
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -50,6 +50,12 @@ void setup() {
   //timer setup
   timerSetup(10);
 
+  //diag UART setup
+  pinMode(KLINE_PIN, OUTPUT);//setup to send init on k and l lines
+  pinMode(LLINE_PIN, OUTPUT);
+  digitalWrite(KLINE_PIN, HIGH);
+  digitalWrite(LLINE_PIN, HIGH);
+
 
   //display setup
   display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);           
@@ -59,22 +65,20 @@ void setup() {
   display.display();
   
 
-  //diag UART setup
-  pinMode(KLINE_PIN, OUTPUT);//setup to send init on k and l lines
-  pinMode(LLINE_PIN, OUTPUT);
-
   Serial.println(F("Ready, enter command: "));//prompt user for command
 }
 
 void loop() {
   
   while(!Serial.available());//wait for input
-  buf = Serial.readString();//read input to buffer
+  read_buf = Serial.readString();//read input to buffer
   fastInit();
   //display output
   display.setCursor(0,(8*(line++ % 8)));//scroll display
   display.fillRect(0,(8*((line-1) % 8)),128,8,SSD1306_BLACK);//clear line text
-  display.print(buf);
+  display.print(String(line, DEC) + ". ");
+  display.setCursor(20,(8*(line-1 % 8)));
+  display.print(read_buf);
   display.display();
 
 }
@@ -88,5 +92,14 @@ void fastInit(){ //fast KWP2000 init protocol on k and l lines
   digitalWrite(LLINE_PIN, HIGH);
   delay(25);
   Serial1.begin(BAUDRATE);
-  Serial1.write(init_sequence, 5);
+  writeFromProgmem(init_sequence, 5);
+}
+
+void writeFromProgmem(char* msg, uint8_t msglen){
+  uint8_t count = 0;
+  while(count < msglen){
+    write_buf[count] = pgm_read_byte_near(msg + count);
+    count++;
+  }
+  Serial1.write(write_buf, count);
 }
