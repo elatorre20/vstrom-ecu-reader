@@ -35,7 +35,7 @@ ISR(TIMER1_COMPA_vect){ //timer interrupt handler
 #define LLINE_PIN 4 //any GPIO
 char write_buf[32];
 String read_buf;
-const static char PROGMEM init_sequence[] = {0xC1, 0x33, 0xF1, 0x81, 0x66}; //size is stored in the first byte of the message, figure out later
+const static char PROGMEM init_sequence[] = {0x81, 0x12, 0xF1, 0x81, 0x05}; 
 
 //misc
 uint8_t line = 0;//for scrolling the display
@@ -72,12 +72,16 @@ void loop() {
   
   while(!Serial.available());//wait for input
   read_buf = Serial.readString();//read input to buffer
-  fastInit();
+  read_buf.trim();
+  if(read_buf == F("ATZ")){
+    fastInit();
+    read_buf = F("Initializing");
+  }
   //display output
   display.setCursor(0,(8*(line++ % 8)));//scroll display
   display.fillRect(0,(8*((line-1) % 8)),128,8,SSD1306_BLACK);//clear line text
   display.print(String(line, DEC) + ". ");
-  display.setCursor(20,(8*(line-1 % 8)));
+  display.setCursor(20,(8*((line-1) % 8)));
   display.print(read_buf);
   display.display();
 
