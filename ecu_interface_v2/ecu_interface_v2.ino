@@ -4,7 +4,7 @@
 #include "images.h"
 
 //timer for interrupts
-#define SCHED_ROLLOVER 100 //timer rollover in milliseconds
+#define SCHED_ROLLOVER 100 //timer rollover in periods
 volatile uint8_t task_sched = 0;
 volatile uint16_t timer_ms = 0; //actually 1 timer period, not 1ms
 void timerSetup(uint16_t period){//period roughly in MS
@@ -45,7 +45,7 @@ uint8_t gear = 0;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
-  //serial setup
+  //usb serial setup
   Serial.begin(9600);
   Serial.println("Motorcycle diagnostic interface");
 
