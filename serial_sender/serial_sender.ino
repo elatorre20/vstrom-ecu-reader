@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "images.h"
 
 //timer for interrupts
 #define SCHED_ROLLOVER 100 //timer rollover in periods
@@ -42,12 +43,12 @@ String cmd_buf; //buffer for commands read in from usb serial
 char data_buf[128]; //buffer for data recieved from ecu
 
 //messages 
-//format: 80 12 F1 (ecu address) <request> <checksum>
+//format: 81 12 F1 (ecu address) <request> <checksum>
 const static char PROGMEM init_msg[] =    {0x81, 0x12, 0xF1, 0x81, 0x05}; //initialize, 5 bytes
-const static char PROGMEM keepalive[] =   {0x81, 0x12, 0xF1, 0x01, 0x3E, 0xC2}; //keepalive, 6 bytes
+const static char PROGMEM keepalive[] =   {0x80, 0x12, 0xF1, 0x01, 0x3E, 0xC2}; //keepalive, 6 bytes
 const static char PROGMEM quit[] =        {0x80, 0x12, 0xF1, 0x01, 0x82, 0x06}; //quit communcations, 6 bytes
-const static char PROGMEM clear_dtc[] =   {0x81, 0x12, 0xF1, 0x03, 0x14, 0x00, 0x00}; //clear DTC, 7 bytes
-const static char PROGMEM sensor_data[] = {0x81, 0x12, 0xF1, 0x02, 0x21, 0x08}; //query all sensors, 6 bytes
+const static char PROGMEM clear_dtc[] =   {0x80, 0x12, 0xF1, 0x03, 0x14, 0x00, 0x00, 0x9A}; //clear DTC, 8 bytes
+const static char PROGMEM sensor_data[] = {0x80, 0x12, 0xF1, 0x02, 0x21, 0x08, 0xAE}; //query all sensors, 7 bytes
 
 //misc
 uint8_t line = 0;//for scrolling the display
@@ -74,7 +75,10 @@ void setup() {
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
   display.clearDisplay();
+  display.drawBitmap(32,0,logo_splash,64,64,SSD1306_WHITE);
   display.display();
+  delay(3000);
+  display.clearDisplay();
   
 
   Serial.println(F("Ready, enter command: "));//prompt user for command
@@ -108,14 +112,17 @@ void loop() {
       else if(cmd_buf == F("CLEAR")){ //clear DTC
         valid_cmd = 1;
         timer_ms = 0;
-        writeFromProgmem(clear_dtc, 6);
+        writeFromProgmem(clear_dtc, 8);
         cmd_buf = F("Disconnecting");
       }
       else if(cmd_buf == F("QUERY")){ //get new sensor data
         valid_cmd = 1;
         timer_ms = 0;
-        writeFromProgmem(sensor_data, 6);
+        writeFromProgmem(sensor_data, 7);
         cmd_buf = F("Querying Sensors");
+        delay(500); //allow ECU time to respond
+        Serial1.readBytes(data_buf, Serial1.available()); //read ECU data
+        Serial.write(data_buf,64);
       }
       //display output
       if(valid_cmd){
