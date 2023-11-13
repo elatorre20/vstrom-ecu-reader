@@ -20,7 +20,7 @@
         },
         {
             "name": "Arduino",
-            "compilerPath": "C:\\Users\\emili\\AppData\\Local\\Arduino15\\packages\\rp2040\\tools\\pqt-gcc\\1.5.0-b-c7bab52\\bin\\arm-none-eabi-g++",
+            "compilerPath": "C:/Users/emili/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/1.5.0-b-c7bab52/bin/arm-none-eabi-g++",
             "compilerArgs": [
                 "-I",
                 "-Werror=return-type",
