@@ -41,9 +41,9 @@ uint8_t line = 0;//for scrolling the display
 #define KLINE_PIN 1 //serial1 TX
 #define LLINE_PIN 4 //any GPIO
 uint8_t initialized = 0;
-char write_buf[32]; //buffer for data to be written to ecu
+unsigned char write_buf[32]; //buffer for data to be written to ecu
 String cmd_buf; //buffer for commands read in from usb serial
-char data_buf[64]; //buffer for data recieved from ecu
+unsigned char data_buf[64]; //buffer for data recieved from ecu
 
 //messages 
 //format: 81 12 F1 (ecu address) <request length> <request> <checksum>
@@ -54,17 +54,19 @@ const static char PROGMEM clear_dtc[] =   {0x80, 0x12, 0xF1, 0x03, 0x14, 0x00, 0
 const static char PROGMEM sensor_data[] = {0x80, 0x12, 0xF1, 0x02, 0x21, 0x08, 0xAE}; //query all sensors, 7 bytes
 
 //stats 
-uint8_t speed = 0; //speed in KPH, byte 16 * 2
+//all decodings are taken from https://github.com/synfinatic/sv650sds/wiki
+//only the ones marked CONFIRMED produced sensible values in my testing
+uint16_t speed = 0; //speed in KPH, byte 16 * 2
 uint16_t rpm = 0; //RPM, 10*byte 17 + byte 18/10
-uint8_t tps = 0; //throttle position sensor value, byte 19 range 0x37-0xDD
+uint16_t tps = 0; //throttle position sensor value, byte 19 range 0x37-0xDD
 uint8_t iap1 = 0; //intake air pressure 1, byte 20
-uint8_t engine_temp = 0; //engine oil temperature in celsius, (byte 21-48)/1.6
-uint8_t intake_temp = 0; //intake air temperature in celsius, (byte 22-48)/1.6
-uint8_t v_bat = 0; //battery voltage, byte 24*20/255
-uint8_t gear = 0; //gear, byte 26
+uint16_t engine_temp = 0; //engine oil temperature in celsius, (byte 21-48)/1.6
+uint16_t intake_temp = 0; //intake air temperature in celsius, (byte 22-48)/1.6
+float v_bat = 0; //battery voltage, byte 24*20/255
+uint8_t gear = 0; //gear, byte 26 CONFIRMED
 uint8_t iap2 = 0; //intake air pressure 2, byte 27
 uint8_t throt_valv = 0; //throttle valve, byte 46
-uint8_t clutch = 0; //clutch switch, byte 52 bit 4
+uint8_t clutch = 0; //clutch switch, byte 52 bit 4 CONFIRMED
 uint8_t neutral = 0; //neutral switch, byte 53 bit 1
 
 
@@ -171,35 +173,62 @@ void readResponse(){//read bytes returned by ECU
 void parseData(){ //parse received data and update variables
   Serial.println(F("Recieved data: "));
   for(uint8_t i = 0; i < 64; i++){//print all recieved data to USB serial
-    Serial.print(data_buf[i], HEX);
+    Serial.print((uint8_t)data_buf[i], HEX);
     Serial.print(F(" "));
   }
   Serial.println("\n");
   //update and print stats
   //speed
-  speed = data_buf[16] * 2;
+  speed = (uint16_t)data_buf[16] * 2;
   Serial.print(F("Speed KPH: "));
-  Serial.println(speed, DEC);
+  Serial.println((uint16_t)speed, DEC);
   //rpm
-  rpm = (data_buf[17] * 10) + (data_buf[18] / 10);
+  rpm = ((data_buf[17] * 10) + data_buf[18]) / 10;
   Serial.print(F("RPM: "));
-  Serial.println(rpm, DEC);
+  //Serial.println((uint8_t)rpm, DEC);
+  Serial.print((uint8_t)data_buf[17], DEC);
+  Serial.println((uint8_t)data_buf[18], DEC);
   //throttle position sensor
-  tps = (data_buf[19] - 0x37)/0xA6;
+  tps = ((uint8_t)data_buf[19] - 0x37)/0xA6;
   Serial.print(F("TPS %: "));
-  Serial.println(tps, DEC);
-  //
+  Serial.println((uint8_t)tps, DEC);
+  //intake air pressure 1
+  iap1 = data_buf[20];
+  Serial.print(F("IAP 1: "));
+  Serial.println((uint8_t)iap1, DEC);
+  //engine temp
+  engine_temp = ((uint8_t)data_buf[21] - 48)/1.6;
+  Serial.print(F("Engine oil temp *C: "));
+  Serial.println((uint8_t)engine_temp, DEC);
+  //intake temp
+  intake_temp = ((uint8_t)data_buf[22]-48)/1.6;
+  Serial.print(F("Intake air temperature *C: "));
+  Serial.println((uint8_t)intake_temp, DEC);
+  //battery voltage
+  v_bat = ((uint8_t)data_buf[24]*20)/255;
+  Serial.print(F("Battery voltage: "));
+  Serial.println((uint8_t)v_bat, DEC);
+  //gear
+  gear = data_buf[26];
+  Serial.print(F("Gear: "));
+  Serial.println((uint8_t)gear, DEC);
+  //intake air pressure 2
+  iap2 = data_buf[27];
+  Serial.print(F("Intake air pressure 2: "));
+  Serial.println((uint8_t)iap2, DEC);
+  //throttle valve opening
+  throt_valv = data_buf[46];
+  Serial.print(F("Throttle valve: "));
+  Serial.println(throt_valv, DEC);
+  //clutch switch
+  clutch = data_buf[52];
+  Serial.print(F("Clutch switch: "));
+  Serial.println((uint8_t)clutch, HEX);
+  //neutral switch
+  neutral = data_buf[53];
+  Serial.print(F("Neutral switch: "));
+  Serial.println((uint8_t)neutral, HEX);
 }
-
-uint8_t iap1 = 0; //intake air pressure 1, byte 20
-uint8_t engine_temp = 0; //engine oil temperature in celsius, (byte 21-48)/1.6
-uint8_t intake_temp = 0; //intake air temperature in celsius, (byte 22-48)/1.6
-uint8_t v_bat = 0; //battery voltage, byte 24*20/255
-uint8_t gear = 0; //gear, byte 26
-uint8_t iap2 = 0; //intake air pressure 2, byte 27
-uint8_t throt_valv = 0; //throttle valve, byte 46
-uint8_t clutch = 0; //clutch switch, byte 52 bit 4
-uint8_t neutral = 0; //neutral switch, byte 53 bit 1
 
 void fastInit(){ //fast KWP2000 init protocol on k and l lines
   initialized = 0;//stop keepalives if retrying intialization
