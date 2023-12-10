@@ -10,10 +10,10 @@ I came across [this project](https://hackaday.com/2018/09/11/adding-upgrades-to-
 
 All of these were very useful and informed my design:
 
-*[An explanation of the K-Line/KWP2000 physical and data layers and how to interface it with TTL logic](https://m0agx.eu/reading-obd2-data-without-elm327-part-2-k-line.html)
-*[The original project that I started from](https://hackaday.com/2018/09/11/adding-upgrades-to-a-stock-motorcycle/)
-*[Many resources about the diagnostic interface on Suzuki motorcycles](https://github.com/synfinatic/sv650sds/wiki)
-*[The display setup that I ended up copying](https://www.youtube.com/watch?v=Gqyt9sBvENI)
+* [An explanation of the K-Line/KWP2000 physical and data layers and how to interface it with TTL logic](https://m0agx.eu/reading-obd2-data-without-elm327-part-2-k-line.html)
+* [The original project that I started from](https://hackaday.com/2018/09/11/adding-upgrades-to-a-stock-motorcycle/)
+* [Many resources about the diagnostic interface on Suzuki motorcycles](https://github.com/synfinatic/sv650sds/wiki)
+* [The display setup that I ended up copying](https://www.youtube.com/watch?v=Gqyt9sBvENI)
 
 ## Technical Outline
 
