@@ -5,10 +5,10 @@
 #include "images.h"
 
 //timer for interrupts
-#define TEMP_PERIOD 500 //in periods of about 10ms
+#define TEMP_PERIOD 200 //in periods of about 10ms
 #define UPDATE_PERIOD 100
 volatile uint8_t task_sched = 0;
-volatile uint8_t update_temp = 1; //time to send update temp
+volatile uint16_t update_temp = 1; //time to send update temp
 volatile uint8_t update = 1; //time to update gear
 void timerSetup(uint16_t period){//period roughly in MS with a 16MHz clock. 
   //Note that if you are not using a 32u4-based MCU, you will have to change the register names/setup appropriately
@@ -35,7 +35,7 @@ ISR(TIMER1_COMPA_vect){ //timer interrupt handler
 #define SCREEN_WIDTH 128 
 #define SCREEN_HEIGHT 64 
 #define OLED_RESET     -1 
-#define SCREEN_ADDRESS 0x3D 
+#define SCREEN_ADDRESS 0x3C 
 #define SSD1306_NO_SPLASH
 uint8_t valid_cmd = 0; //for if the user command is valid
 uint8_t line = 0;//for scrolling the display
@@ -58,7 +58,7 @@ const static char PROGMEM clear_dtc[] =   {0x80, 0x12, 0xF1, 0x03, 0x14, 0x00, 0
 const static char PROGMEM sensor_data[] = {0x80, 0x12, 0xF1, 0x02, 0x21, 0x08, 0xAE}; //query all sensors, 7 bytes
 
 //temperature and humidity
-float temp[2];
+float temp = 0;
 
 //stats 
 //all decodings are taken from https://github.com/synfinatic/sv650sds/wiki
@@ -79,7 +79,7 @@ uint8_t neutral = 0; //neutral switch, byte 53 bit 1
 
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-DHT temp_sensor(22, DHT11);
+DHT temp_sensor(23, DHT11);
 
 void setup() {
   //usb serial setup
@@ -101,25 +101,33 @@ void setup() {
   display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
   display.setTextSize(8);
   display.clearDisplay();
-  display.drawBitmap(32,0,logo_splash,64,64,SSD1306_WHITE);
+  display.drawBitmap(0,32,logo_splash,64,64,SSD1306_WHITE);
   display.display();
   display.clearDisplay();
 
   //allow time for ECU to start up after ignition switched
   delay(3000);
+  display.setCursor(4,4);
+  display.print(F("N"));
+  display.display();
+  
 }
 
 void loop() {
   if(!initialized){//establish connection if dropped
+    digitalWrite(LED_BUILTIN, 1);
+    Serial.println(F("\nTrying Connection\n"));
     initialized = 1;
     fastInit();
   }
-  if(!update  && initialized){//perioically update and draw gear
+  if(!update && initialized){//perioically update and draw gear
+    Serial.println(F("\nUpdating Data\n"));
     query();
     drawGear();
   }
   if(!update_temp){
-    
+    Serial.println(F("\nUpdating Temperature\n"));
+    poll_temp();
   }
 }
 
@@ -277,21 +285,18 @@ void writeFromProgmem(char* msg, uint8_t msglen){//allows saving messages in fla
 
 void poll_temp(){
   //read temperature and humidity
-  temp[0] = temp_sensor.readTemperature();
+  temp = temp_sensor.readTemperature();
 
   //display on screen
-  display.setTextSize(5);
-  display.setCursor(32, 16); //middle right side
-  display.print(temp[0], 0); //print temp with no decimal
+  display.setTextSize(4);
+  display.setCursor(64, 32); //top right
+  display.print(temp, 0); //print temp with no decimal
+  display.setCursor(64, 64); //bottom right
   display.print(F("*C"));
-  display.setCursor(32, 64); //botom right corner
   display.setTextSize(8); //back to large text for gear
 
   //print temp to serial
-  Serial.print("Humidity: ");
-  Serial.print(temp[1]);
-  Serial.print(" %\t");
   Serial.print("Temperature: ");
-  Serial.print(temp[0]);
+  Serial.print(temp, 2);
   Serial.println(" *C");
 }
