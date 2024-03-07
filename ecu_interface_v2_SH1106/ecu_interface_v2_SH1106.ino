@@ -99,6 +99,7 @@ void setup() {
   display.begin(SCREEN_ADDRESS,true);           
   display.setTextColor(SH110X_WHITE, SH110X_BLACK);
   display.setTextSize(8);
+  display.setRotation(2);
   display.clearDisplay();
   display.drawBitmap(32,0,logo_splash,64,64,SH110X_WHITE);
   display.display();
@@ -123,7 +124,7 @@ void loop() {
   }
   if(!update_temp){
     Serial.println(F("\nUpdating Temperature\n"));
-    poll_temp();
+//    poll_temp();
   }
 }
 
@@ -132,35 +133,35 @@ void drawGear(){
   // display.clearDisplay();
   switch(gear){//display current gear
     case 0:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("N"));
       break;
     case 1:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("1"));
       break;
     case 2:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("2"));
       break;
     case 3:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("3"));
       break;
     case 4:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("4"));
       break;
     case 5:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("5"));
       break;
     case 6:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("6"));
       break;
     default:
-      display.setCursor(4,44);
+      display.setCursor(44,4);
       display.print(F("-"));
       break;
   }
